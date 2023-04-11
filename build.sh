@@ -8,7 +8,7 @@ clean () {
 }
 
 # Pre-Clean
-clean
+#clean
 
 # Build
 ./cross-compile.sh

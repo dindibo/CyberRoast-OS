@@ -5,18 +5,23 @@ LDFLAGS:=-T linker.ld -o kernel.bin
 ASM:=nasm
 ASMFLAGS:=-f elf
 
-all: kernel.o boot.o printutils.o
-	$(LD) $(LDFLAGS) kernel.o boot.o printutils.o
+all: kernel.o boot.o
+	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt.o descriptors.o
 
-kernel.o:
+kernel.o: screen.o descriptors.o
 	$(CC) $(CFLAGS) kernel/kernel.c
 
 boot.o: kernel.o
 	$(ASM) $(ASMFLAGS) -o boot.o boot/boot.asm
 
-printutils.o: kernel.o
-	$(ASM) $(ASMFLAGS) -o printutils.o kernel/printutils.asm
+gdt.o:
+	$(ASM) $(ASMFLAGS) -o gdt.o kernel/gdt.asm
+
+descriptors.o: gdt.o
+	$(CC) $(CFLAGS) kernel/descriptors.c
+
+screen.o:
+	$(CC) $(CFLAGS) kernel/screen.c
 
 clean:
 	$(shell rm -rf *.o kernel.bin)
-
