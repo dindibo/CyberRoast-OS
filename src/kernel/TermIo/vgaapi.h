@@ -49,4 +49,5 @@ extern VGA_Pixel VGA_nullPixel;
 
 
 VGA_Pixel *VGA_8025_getPixel(unsigned char x, unsigned char y);
+VGA_Pixel *VGA_8025_getPixelRaw(unsigned short matIndex);
 void clearScreen();

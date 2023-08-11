@@ -20,6 +20,26 @@ void testText () {
 	*((int*)0xb8004)=0x07690748;
 }
 
+void writePixels(unsigned char x, unsigned char y, VGA_Pixel *pixels, unsigned short pixelsLen){
+	VGA_Pixel *pPtr = VGA_8025_getPixel(x, y);
+
+	for (int i = 0; i < pixelsLen; i++)
+	{
+		*pPtr = pixels[i];
+	}
+}
+
+void writePixelsText(unsigned char x, unsigned char y, VGA_Pixel *pixelTemplate, const char *text, unsigned short pixelsLen){
+	VGA_Pixel *pPtr = VGA_8025_getPixel(x, y);
+	VGA_Pixel tmp = *pixelTemplate;
+
+	for (int i = 0; i < pixelsLen; i++)
+	{
+		tmp.charecter = text[i];
+		*pPtr = tmp;
+	}
+}
+
 void write_string_with_color( int colour, const char *string )
 {
     while( *string != 0 )
@@ -118,7 +138,8 @@ int kmain(void *mbd,unsigned int magic){
 
 	clearScreen();
 
-	//convert_to_graphic_mode_TEST();
+	// Check CR0
+	
 
 	return 0;
 }

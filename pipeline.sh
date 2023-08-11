@@ -1,5 +1,8 @@
 #!/bin/bash
 
-rm -f `find -name "*.o" | xargs`
+# Clean
+yes | ./clean.sh
 
-./build.sh && { ./test.sh; } || { ./build.sh && ./test.sh; }
+# Assemble --> Build --> Test
+./assemble.sh && ./build2.sh && ./test.sh
+

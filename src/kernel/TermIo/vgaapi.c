@@ -21,3 +21,7 @@ void clearScreen(){
 VGA_Pixel *VGA_8025_getPixel(unsigned char x, unsigned char y){
     return (VGA_Pixel*)( (0xB8000) + (2 * x) + ( 2 * (y * 80) )  );
 }
+
+VGA_Pixel *VGA_8025_getPixelRaw(unsigned short matIndex){
+    return (VGA_Pixel*)( (0xB8000) + matIndex * 2  );
+}
