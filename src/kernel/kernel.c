@@ -1,25 +1,8 @@
+#include "TermIo/vgaapi.h"
+
 extern void goto_vm8086();
 extern void putc ();
 extern void convert_to_graphic_mode ();
-
-#define VGA_COLOR_BLACK       	(0)
-#define VGA_COLOR_BLUE        	(1)
-#define VGA_COLOR_GREEN       	(2)
-#define VGA_COLOR_CYAN        	(3)
-#define VGA_COLOR_RED         	(4)
-#define VGA_COLOR_PURPLE      	(5)
-#define VGA_COLOR_BROWN       	(6)
-#define VGA_COLOR_GRAY        	(7)
-#define VGA_COLOR_DARK_GRAY   	(8)
-#define VGA_COLOR_LIGHT_BLUE  	(9)
-#define VGA_COLOR_LIGHT_GREEN 	(10)
-#define VGA_COLOR_LIGHT_CYAN  	(11)
-#define VGA_COLOR_LIGHT_RED   	(12)
-#define VGA_COLOR_LIGHT_PURPLE	(13)
-#define VGA_COLOR_YELLOW      	(14)
-#define VGA_COLOR_WHITE       	(15)
-
-#define MMIO_TEXT_PRINT (0xB8000)
 
 const char hexCharset[] = "0123456789ABCDEF";
 const char arrTest[] = "[ Welcome to CyberRoast-1 OS ]";
@@ -48,7 +31,7 @@ void write_string_with_color( int colour, const char *string )
 
 void write_string( const char *string )
 {
-    write_string_with_color(VGA_COLOR_WHITE, string);
+    write_string_with_color(VGA_COLOR_FG_WHITE, string);
 }
 
 void write_char_with_color( int colour, char c )
@@ -68,12 +51,6 @@ void write_char( char c )
 void convert_to_graphic_mode_TEST(){
 	outw(0x3d4,0x000C);
 	outw(0x3d4,0x000D);
-}
-
-void clearScreen(){
-	g_videoCursor = MMIO_TEXT_PRINT;
-	write_string_with_color(0, clearText);
-	g_videoCursor = MMIO_TEXT_PRINT;
 }
 
 void nopFunc() {
@@ -103,7 +80,7 @@ void sleep(int ms){
 
 void doIntroScreen(){
 	clearScreen();
-	write_string_with_color(VGA_COLOR_CYAN, arrTest);
+	write_string_with_color(VGA_COLOR_FG_CYAN, arrTest);
 	sleep(2000);
 	clearScreen();
 }
@@ -137,7 +114,11 @@ int kmain(void *mbd,unsigned int magic){
 	char hhh[] = "ABCDEFGH";
 	print_hexdump(hhh, sizeof(hhh) - 1);
 
-	convert_to_graphic_mode_TEST();
+	sleep(2000);
+
+	clearScreen();
+
+	//convert_to_graphic_mode_TEST();
 
 	return 0;
 }

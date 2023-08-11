@@ -6,9 +6,9 @@ ASM:=nasm
 ASMFLAGS:=-f elf
 
 all: kernel.o boot.o
-	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt.o descriptors.o
+	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt.o descriptors.o vgaapi.o
 
-kernel.o: screen.o descriptors.o
+kernel.o: vgaapi.o screen.o descriptors.o
 	$(CC) $(CFLAGS) kernel/kernel.c
 
 boot.o: kernel.o
@@ -22,6 +22,9 @@ descriptors.o: gdt.o
 
 screen.o:
 	$(CC) $(CFLAGS) kernel/screen.c
+
+vgaapi.o:
+	$(CC) $(CFLAGS) kernel/TermIo/vgaapi.c
 
 clean:
 	$(shell rm -rf *.o kernel.bin)
