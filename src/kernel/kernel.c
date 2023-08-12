@@ -1,8 +1,11 @@
 #include "TermIo/vgaapi.h"
+#include "ProtectedMode/gdt.h"
 
 extern void goto_vm8086();
 extern void putc ();
 extern void convert_to_graphic_mode ();
+extern unsigned int read_cr0();
+extern unsigned int foo();
 
 const char hexCharset[] = "0123456789ABCDEF";
 const char arrTest[] = "[ Welcome to CyberRoast-1 OS ]";
@@ -101,7 +104,7 @@ void sleep(int ms){
 void doIntroScreen(){
 	clearScreen();
 	write_string_with_color(VGA_COLOR_FG_CYAN, arrTest);
-	sleep(2000);
+	sleep(1000);
 	clearScreen();
 }
 
@@ -124,6 +127,10 @@ void print_hexdump(void *addr, unsigned int size){
 	}
 }
 
+void setCursor(unsigned char x, unsigned char y){
+	g_videoCursor = 2 * (x + 80 * y);
+}
+
 int kmain(void *mbd,unsigned int magic){
 	if (magic!=0x2BADB002){
 		return -1;
@@ -131,15 +138,20 @@ int kmain(void *mbd,unsigned int magic){
 
 	doIntroScreen();
 
-	char hhh[] = "ABCDEFGH";
-	print_hexdump(hhh, sizeof(hhh) - 1);
-
-	sleep(2000);
-
 	clearScreen();
 
-	// Check CR0
-	
+	write_string("CR0 ---> ");
+	unsigned int cr0Val = read_cr0();
+	print_hexdump(&cr0Val, 4);
+
+	sleep(500);
+
+	write_string("  Setting up GDT...");
+	gdt_ptr_t *gdt_table = gdt_setup();
+	write_string(" Done");
+
+	write_string("GDT ---> ");
+	print_hexdump(&((gdt_ptr_t *)(gdt_table))->base, 4);
 
 	return 0;
 }

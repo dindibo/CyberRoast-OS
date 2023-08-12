@@ -4,12 +4,12 @@ LD:=i686-elf-ld
 LDFLAGS:=-T linker.ld -o kernel.bin
 
 all: kernel.o boot.o
-	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt.o descriptors.o vgaapi.o regs.o
+	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt_int.o descriptors.o vgaapi.o regs.o tst.o
 
 kernel.o: vgaapi.o screen.o descriptors.o regs.o
 	$(CC) $(CFLAGS) kernel/kernel.c
 
-descriptors.o: gdt.o
+descriptors.o: gdt_int.o
 	$(CC) $(CFLAGS) kernel/descriptors.c
 
 screen.o:
