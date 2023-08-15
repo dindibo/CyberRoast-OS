@@ -12,10 +12,6 @@ clean () {
 
 # Build
 ./cross-compile.sh
-cd src
-make
-cd ..
-./cross-compile.sh
 
 [ -f src/kernel.bin ] || {
 	echo "Build Failed!"
@@ -27,6 +23,7 @@ cp src/kernel.bin iso/kernel/kernel.bin
 
 # Clean
 clean
+./clean.sh
 
 # Make iso
 rm -f os.iso

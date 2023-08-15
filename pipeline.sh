@@ -1,3 +1,8 @@
 #!/bin/bash
 
-./build.sh && { ./test.sh; } || { ./build.sh && ./test.sh; }
+# Clean
+yes | ./clean.sh
+
+# Assemble --> Build --> Test
+./assemble.sh && ./build.sh && ./test.sh
+

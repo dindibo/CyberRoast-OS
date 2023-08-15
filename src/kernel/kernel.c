@@ -1,25 +1,11 @@
+#include "TermIo/vgaapi.h"
+#include "ProtectedMode/gdt.h"
+
 extern void goto_vm8086();
 extern void putc ();
 extern void convert_to_graphic_mode ();
-
-#define VGA_COLOR_BLACK       	(0)
-#define VGA_COLOR_BLUE        	(1)
-#define VGA_COLOR_GREEN       	(2)
-#define VGA_COLOR_CYAN        	(3)
-#define VGA_COLOR_RED         	(4)
-#define VGA_COLOR_PURPLE      	(5)
-#define VGA_COLOR_BROWN       	(6)
-#define VGA_COLOR_GRAY        	(7)
-#define VGA_COLOR_DARK_GRAY   	(8)
-#define VGA_COLOR_LIGHT_BLUE  	(9)
-#define VGA_COLOR_LIGHT_GREEN 	(10)
-#define VGA_COLOR_LIGHT_CYAN  	(11)
-#define VGA_COLOR_LIGHT_RED   	(12)
-#define VGA_COLOR_LIGHT_PURPLE	(13)
-#define VGA_COLOR_YELLOW      	(14)
-#define VGA_COLOR_WHITE       	(15)
-
-#define MMIO_TEXT_PRINT (0xB8000)
+extern unsigned int read_cr0();
+extern unsigned int foo();
 
 const char hexCharset[] = "0123456789ABCDEF";
 const char arrTest[] = "[ Welcome to CyberRoast-1 OS ]";
@@ -37,6 +23,26 @@ void testText () {
 	*((int*)0xb8004)=0x07690748;
 }
 
+void writePixels(unsigned char x, unsigned char y, VGA_Pixel *pixels, unsigned short pixelsLen){
+	VGA_Pixel *pPtr = VGA_8025_getPixel(x, y);
+
+	for (int i = 0; i < pixelsLen; i++)
+	{
+		*pPtr = pixels[i];
+	}
+}
+
+void writePixelsText(unsigned char x, unsigned char y, VGA_Pixel *pixelTemplate, const char *text, unsigned short pixelsLen){
+	VGA_Pixel *pPtr = VGA_8025_getPixel(x, y);
+	VGA_Pixel tmp = *pixelTemplate;
+
+	for (int i = 0; i < pixelsLen; i++)
+	{
+		tmp.charecter = text[i];
+		*pPtr = tmp;
+	}
+}
+
 void write_string_with_color( int colour, const char *string )
 {
     while( *string != 0 )
@@ -46,9 +52,23 @@ void write_string_with_color( int colour, const char *string )
     }
 }
 
-void write_string( const char *string )
+void setCursor(unsigned char x, unsigned char y){
+	g_videoCursor = 2 * (x + 80 * y) + MMIO_TEXT_PRINT;
+}
+
+void makeNewline(){
+	unsigned char line = (((unsigned int)g_videoCursor - MMIO_TEXT_PRINT) / 2) / 80;
+	setCursor(0, ++line);
+
+}
+
+void write_string( const char *string, char newline)
 {
-    write_string_with_color(VGA_COLOR_WHITE, string);
+    write_string_with_color(VGA_COLOR_FG_WHITE, string);
+
+	if(newline){
+		makeNewline();
+	}
 }
 
 void write_char_with_color( int colour, char c )
@@ -62,18 +82,12 @@ void write_char( char c )
 {
 	char buf[2] = {0};
 	buf[0] = c;
-	write_string(buf);
+	write_string(buf, 0);
 }
 
 void convert_to_graphic_mode_TEST(){
 	outw(0x3d4,0x000C);
 	outw(0x3d4,0x000D);
-}
-
-void clearScreen(){
-	g_videoCursor = MMIO_TEXT_PRINT;
-	write_string_with_color(0, clearText);
-	g_videoCursor = MMIO_TEXT_PRINT;
 }
 
 void nopFunc() {
@@ -103,8 +117,8 @@ void sleep(int ms){
 
 void doIntroScreen(){
 	clearScreen();
-	write_string_with_color(VGA_COLOR_CYAN, arrTest);
-	sleep(2000);
+	write_string_with_color(VGA_COLOR_FG_CYAN, arrTest);
+	sleep(1000);
 	clearScreen();
 }
 
@@ -134,10 +148,23 @@ int kmain(void *mbd,unsigned int magic){
 
 	doIntroScreen();
 
-	char hhh[] = "ABCDEFGH";
-	print_hexdump(hhh, sizeof(hhh) - 1);
+	clearScreen();
 
-	convert_to_graphic_mode_TEST();
+	write_string("CR0 ---> ", 0);
+	unsigned int cr0Val = read_cr0();
+	print_hexdump(&cr0Val, 4);
+	makeNewline();
+
+	sleep(500);
+
+	write_string("Setting up GDT...", 1);
+
+	gdt_ptr_t *gdt_table = gdt_setup();
+	write_string("Done", 1);
+
+
+	write_string("GDT ---> ", 0);
+	print_hexdump(&((gdt_ptr_t *)(gdt_table))->base, 4);
 
 	return 0;
 }
