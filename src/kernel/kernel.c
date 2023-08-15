@@ -1,11 +1,12 @@
 #include "TermIo/vgaapi.h"
-#include "ProtectedMode/gdt.h"
+#include "interrupts/descriptors.h"
 
 extern void goto_vm8086();
 extern void putc ();
 extern void convert_to_graphic_mode ();
 extern unsigned int read_cr0();
 extern unsigned int foo();
+extern void do_int();
 
 const char hexCharset[] = "0123456789ABCDEF";
 const char arrTest[] = "[ Welcome to CyberRoast-1 OS ]";
@@ -59,15 +60,20 @@ void setCursor(unsigned char x, unsigned char y){
 void makeNewline(){
 	unsigned char line = (((unsigned int)g_videoCursor - MMIO_TEXT_PRINT) / 2) / 80;
 	setCursor(0, ++line);
-
 }
 
 void write_string( const char *string, char newline)
 {
+	const static int MIMO_MAX = 0xb8fa0;
+
     write_string_with_color(VGA_COLOR_FG_WHITE, string);
 
 	if(newline){
 		makeNewline();
+	}
+
+	if(g_videoCursor > (MIMO_MAX)){
+		clearScreen();
 	}
 }
 
@@ -159,12 +165,14 @@ int kmain(void *mbd,unsigned int magic){
 
 	write_string("Setting up GDT...", 1);
 
-	gdt_ptr_t *gdt_table = gdt_setup();
-	write_string("Done", 1);
+	gdt_setup();
+	write_string("Done!", 1);
 
-
-	write_string("GDT ---> ", 0);
-	print_hexdump(&((gdt_ptr_t *)(gdt_table))->base, 4);
+	write_string("Setting up IDT...", 1);
+	idt_setup();
+	write_string("Done!", 1);
+	
+	do_int();
 
 	return 0;
 }

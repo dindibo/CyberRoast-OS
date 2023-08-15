@@ -4,19 +4,22 @@ LD:=i686-elf-ld
 LDFLAGS:=-T linker.ld -o kernel.bin
 
 all: kernel.o boot.o
-	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt_int.o descriptors.o vgaapi.o regs.o tst.o
+	$(LD) $(LDFLAGS) kernel.o boot.o screen.o gdt_int.o vgaapi.o regs.o tst.o descriptors.o idt.o isr.o asmisr.o
 
-kernel.o: vgaapi.o screen.o descriptors.o regs.o
+kernel.o: vgaapi.o screen.o regs.o descriptors.o idt.o isr.o asmisr.o tst.o
 	$(CC) $(CFLAGS) kernel/kernel.c
-
-descriptors.o: gdt_int.o
-	$(CC) $(CFLAGS) kernel/descriptors.c
 
 screen.o:
 	$(CC) $(CFLAGS) kernel/screen.c
 
 vgaapi.o:
 	$(CC) $(CFLAGS) kernel/TermIo/vgaapi.c
+
+descriptors.o:
+	$(CC) $(CFLAGS) kernel/interrupts/descriptors.c
+
+isr.o:
+	$(CC) $(CFLAGS) kernel/interrupts/isr.c
 
 clean:
 	$(shell rm -rf *.o kernel.bin)

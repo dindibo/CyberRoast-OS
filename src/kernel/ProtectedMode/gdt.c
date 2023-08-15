@@ -17,6 +17,7 @@ char access,unsigned char granularity)
     return gdt_entry;
 }
 
+/*
 gdt_ptr_t *gdt_setup(){
     gdt_entry_t gdt_entries[5];
     gdt_ptr_t gdt_ptr;
@@ -34,3 +35,4 @@ gdt_ptr_t *gdt_setup(){
 
     return &gdt_ptr;
 }
+*/
