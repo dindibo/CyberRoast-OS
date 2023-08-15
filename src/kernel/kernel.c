@@ -52,9 +52,23 @@ void write_string_with_color( int colour, const char *string )
     }
 }
 
-void write_string( const char *string )
+void setCursor(unsigned char x, unsigned char y){
+	g_videoCursor = 2 * (x + 80 * y) + MMIO_TEXT_PRINT;
+}
+
+void makeNewline(){
+	unsigned char line = (((unsigned int)g_videoCursor - MMIO_TEXT_PRINT) / 2) / 80;
+	setCursor(0, ++line);
+
+}
+
+void write_string( const char *string, char newline)
 {
     write_string_with_color(VGA_COLOR_FG_WHITE, string);
+
+	if(newline){
+		makeNewline();
+	}
 }
 
 void write_char_with_color( int colour, char c )
@@ -68,7 +82,7 @@ void write_char( char c )
 {
 	char buf[2] = {0};
 	buf[0] = c;
-	write_string(buf);
+	write_string(buf, 0);
 }
 
 void convert_to_graphic_mode_TEST(){
@@ -127,10 +141,6 @@ void print_hexdump(void *addr, unsigned int size){
 	}
 }
 
-void setCursor(unsigned char x, unsigned char y){
-	g_videoCursor = 2 * (x + 80 * y);
-}
-
 int kmain(void *mbd,unsigned int magic){
 	if (magic!=0x2BADB002){
 		return -1;
@@ -140,17 +150,20 @@ int kmain(void *mbd,unsigned int magic){
 
 	clearScreen();
 
-	write_string("CR0 ---> ");
+	write_string("CR0 ---> ", 0);
 	unsigned int cr0Val = read_cr0();
 	print_hexdump(&cr0Val, 4);
+	makeNewline();
 
 	sleep(500);
 
-	write_string("  Setting up GDT...");
-	gdt_ptr_t *gdt_table = gdt_setup();
-	write_string(" Done");
+	write_string("Setting up GDT...", 1);
 
-	write_string("GDT ---> ");
+	gdt_ptr_t *gdt_table = gdt_setup();
+	write_string("Done", 1);
+
+
+	write_string("GDT ---> ", 0);
 	print_hexdump(&((gdt_ptr_t *)(gdt_table))->base, 4);
 
 	return 0;
