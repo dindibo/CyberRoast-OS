@@ -1,5 +1,8 @@
 #include "TermIo/vgaapi.h"
-#include "interrupts/descriptors.h"
+
+// Siman 7
+#include "screen.h"
+#include "descriptors.h"
 
 extern void goto_vm8086();
 extern void putc ();
@@ -152,27 +155,21 @@ int kmain(void *mbd,unsigned int magic){
 		return -1;
 	}
 
-	doIntroScreen();
-
-	clearScreen();
-
-	write_string("CR0 ---> ", 0);
-	unsigned int cr0Val = read_cr0();
-	print_hexdump(&cr0Val, 4);
-	makeNewline();
-
-	sleep(500);
-
-	write_string("Setting up GDT...", 1);
-
+	screen_clear();
+	if (magic!=0x2BADB002){
+		screen_print("Invalid multiboot header.");
+		return -1;
+	}
+	screen_print("Hello World!\n");
+	screen_print("Setting up the GDT.\n");
 	gdt_setup();
-	write_string("Done!", 1);
-
-	write_string("Setting up IDT...", 1);
+	screen_print("GDT set.\n");
+	screen_print("Setting up the IDT.\n");
 	idt_setup();
-	write_string("Done!", 1);
-	
-	do_int();
+	screen_print("IDT set.\n");
+	screen_print("Sending interrupt.\n");
+	__asm__("int $0x00");
+	__asm__("int $0x80");
 
 	return 0;
 }

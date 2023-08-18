@@ -16,10 +16,10 @@ vgaapi.o:
 	$(CC) $(CFLAGS) kernel/TermIo/vgaapi.c
 
 descriptors.o:
-	$(CC) $(CFLAGS) kernel/interrupts/descriptors.c
+	$(CC) $(CFLAGS) kernel/descriptors.c
 
 isr.o:
-	$(CC) $(CFLAGS) kernel/interrupts/isr.c
+	$(CC) $(CFLAGS) kernel/isr.c
 
 clean:
 	$(shell rm -rf *.o kernel.bin)

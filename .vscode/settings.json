@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "descriptors.h": "c"
+        "descriptors.h": "c",
+        "vgaapi.h": "c",
+        "screen.h": "c"
     }
 }
