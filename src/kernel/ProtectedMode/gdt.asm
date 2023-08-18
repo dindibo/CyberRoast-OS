@@ -1,4 +1,5 @@
 global gdt_write
+global read_cr0
 
 gdt_write:
 	mov eax, [esp+4]
@@ -12,3 +13,7 @@ gdt_write:
 	jmp 0x08:flush
 flush:
 		ret
+
+read_cr0:
+	mov eax, cr0
+	ret

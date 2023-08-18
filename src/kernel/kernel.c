@@ -155,19 +155,29 @@ int kmain(void *mbd,unsigned int magic){
 		return -1;
 	}
 
+	doIntroScreen();
 	screen_clear();
-	if (magic!=0x2BADB002){
-		screen_print("Invalid multiboot header.");
-		return -1;
-	}
-	screen_print("Hello World!\n");
+
+	sleep(500);
+
+	// Print CR0 register
+	screen_print("CR0 ---> 0b");
+	unsigned int cr0Val = read_cr0();
+	screen_print_int(cr0Val, 2);
+	screen_print("\n");
+
+	// Verbose debug - GDT and IDT
 	screen_print("Setting up the GDT.\n");
 	gdt_setup();
 	screen_print("GDT set.\n");
 	screen_print("Setting up the IDT.\n");
 	idt_setup();
 	screen_print("IDT set.\n");
-	screen_print("Sending interrupt.\n");
+
+	sleep(250);
+	screen_clear();
+
+	// Send interrupts
 	__asm__("int $0x00");
 	__asm__("int $0x80");
 
