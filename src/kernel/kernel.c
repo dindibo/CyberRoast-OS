@@ -2,7 +2,7 @@
 
 // Siman 7
 #include "screen.h"
-#include "descriptors.h"
+#include "./ProtectedMode/descriptors.h"
 
 extern void goto_vm8086();
 extern void putc ();

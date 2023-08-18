@@ -288,7 +288,6 @@ struct idt_entry_struct{
 
 typedef struct idt_entry_struct idt_entry_t;
 
-
 struct idt_ptr_struct{
     unsigned short limit;
     unsigned int base;
